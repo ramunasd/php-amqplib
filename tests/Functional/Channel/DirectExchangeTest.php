@@ -10,7 +10,7 @@ use PhpAmqpLib\Tests\Functional\Channel\ChannelTestCase;
  */
 class DirectExchangeTest extends ChannelTestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 

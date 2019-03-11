@@ -18,14 +18,14 @@ class Bug49Test extends TestCase
 
     protected $channel2;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->connection = new AMQPStreamConnection(HOST, PORT, USER, PASS, VHOST);
         $this->channel = $this->connection->channel();
         $this->channel2 = $this->connection->channel();
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         if ($this->channel) {
             $this->channel->close();

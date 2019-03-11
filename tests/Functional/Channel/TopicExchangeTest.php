@@ -11,7 +11,7 @@ use PhpAmqpLib\Tests\Functional\Channel\ChannelTestCase;
  */
 class TopicExchangeTest extends ChannelTestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 

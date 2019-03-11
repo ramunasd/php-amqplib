@@ -28,7 +28,7 @@ class ChannelTimeoutTest extends TestCase
     /** @var AMQPChannel $channel */
     private $channel;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $channel_rpc_timeout = 3.5;
 
@@ -81,7 +81,7 @@ class ChannelTimeoutTest extends TestCase
         );
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         if ($this->channel) {
             $this->channel->close();
