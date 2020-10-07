@@ -10,7 +10,7 @@ use PhpAmqpLib\Helper\SocketConstants;
 
 class SocketIO extends AbstractIO
 {
-    /** @var resource */
+    /** @var null|resource */
     private $sock;
 
     /**
@@ -153,21 +153,24 @@ class SocketIO extends AbstractIO
      */
     public function write($data)
     {
+        // Null sockets are invalid, throw exception
+        if (is_null($this->sock)) {
+            throw new AMQPSocketException(sprintf(
+                'Socket was null! Last SocketError was: %s',
+                socket_strerror(socket_last_error())
+            ));
+        }
+
+        $this->checkBrokerHeartbeat();
+
         $written = 0;
         $len = mb_strlen($data, 'ASCII');
         $write_start = microtime(true);
 
         while ($written < $len) {
-            // Null sockets are invalid, throw exception
-            if (is_null($this->sock)) {
-                throw new AMQPSocketException(sprintf(
-                    'Socket was null! Last SocketError was: %s',
-                    socket_strerror(socket_last_error())
-                ));
-            }
-
             $this->set_error_handler();
             try {
+                $this->select_write();
                 $buffer = mb_substr($data, $written, self::BUFFER_SIZE, 'ASCII');
                 $result = socket_write($this->sock, $buffer, self::BUFFER_SIZE);
                 $this->cleanup_error_handler();
@@ -208,7 +211,6 @@ class SocketIO extends AbstractIO
                 if (($now - $write_start) > $this->write_timeout) {
                     throw AMQPTimeoutException::writeTimeout($this->write_timeout);
                 }
-                $this->select_write();
             }
         }
     }
@@ -223,8 +225,8 @@ class SocketIO extends AbstractIO
             socket_close($this->sock);
         }
         $this->sock = null;
-        $this->last_read = null;
-        $this->last_write = null;
+        $this->last_read = 0;
+        $this->last_write = 0;
     }
 
     /**
